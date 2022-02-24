@@ -27,10 +27,15 @@ export enum Props {
 
 const setAWSCredentials = () => {
   AWS.config.credentials = {
-    accessKeyId: getInput(Credentials.AWS_ACCESS_KEY_ID),
-    secretAccessKey: getInput(Credentials.AWS_SECRET_ACCESS_KEY),
-    sessionToken: getInput(Credentials.AWS_SESSION_TOKEN),
+    accessKeyId: getInputOrEnv(Credentials.AWS_ACCESS_KEY_ID),
+    secretAccessKey: getInputOrEnv(Credentials.AWS_SECRET_ACCESS_KEY),
+    sessionToken: getInputOrEnv(Credentials.AWS_SESSION_TOKEN),
   };
+};
+
+const getInputOrEnv = (name: string): string => {
+  const envVal = process.env[name];
+  return getInput(name, { required: !envVal }) || String(envVal);
 };
 
 const getParams = () => {
@@ -62,7 +67,7 @@ export const main = async () => {
 
     const params = getParams();
 
-    const lambda = new Lambda({ apiVersion, region: getInput('REGION') });
+    const lambda = new Lambda({ apiVersion, region: getInputOrEnv('REGION') });
 
     const response = await lambda.invoke(params).promise();
 

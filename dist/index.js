@@ -19979,10 +19979,14 @@ var Props = /* @__PURE__ */ ((Props2) => {
 })(Props || {});
 var setAWSCredentials = () => {
   import_global.default.config.credentials = {
-    accessKeyId: (0, import_core.getInput)('AWS_ACCESS_KEY_ID' /* AWS_ACCESS_KEY_ID */),
-    secretAccessKey: (0, import_core.getInput)('AWS_SECRET_ACCESS_KEY' /* AWS_SECRET_ACCESS_KEY */),
-    sessionToken: (0, import_core.getInput)('AWS_SESSION_TOKEN' /* AWS_SESSION_TOKEN */),
+    accessKeyId: getInputOrEnv('AWS_ACCESS_KEY_ID' /* AWS_ACCESS_KEY_ID */),
+    secretAccessKey: getInputOrEnv('AWS_SECRET_ACCESS_KEY' /* AWS_SECRET_ACCESS_KEY */),
+    sessionToken: getInputOrEnv('AWS_SESSION_TOKEN' /* AWS_SESSION_TOKEN */),
   };
+};
+var getInputOrEnv = (name) => {
+  const envVal = process.env[name];
+  return (0, import_core.getInput)(name, { required: !envVal }) || String(envVal);
 };
 var getParams = () => {
   return Object.keys(Props).reduce((memo, prop) => {
@@ -20005,7 +20009,7 @@ var main = async () => {
     setAWSCredentials();
     setAWSConfigOptions();
     const params = getParams();
-    const lambda = new import_lambda.default({ apiVersion, region: (0, import_core.getInput)('REGION') });
+    const lambda = new import_lambda.default({ apiVersion, region: getInputOrEnv('REGION') });
     const response = await lambda.invoke(params).promise();
     (0, import_core.setOutput)('response', response);
     const succeedOnFailure =
